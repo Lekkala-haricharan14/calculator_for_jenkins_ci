@@ -2,37 +2,38 @@ pipeline {
     agent any
 
     stages {
+
         stage('Install Dependencies') {
             steps {
-                sh 'pip install -r requirements.txt'
+                sh 'pip3 install -r calculator-app/requirements.txt'
             }
         }
 
-        stage('Run App Build Script') {
+        stage('Build') {
             steps {
-                sh 'bash build.sh'
+                sh 'python3 -m py_compile calculator-app/calculator.py'
             }
         }
 
         stage('Run Tests') {
             steps {
-                sh 'bash test.sh'
+                sh 'pytest calculator-app/test_calculator.py --junitxml=test-results/results.xml'
             }
         }
 
         stage('Publish Test Results') {
             steps {
-                junit 'test-results/*.xml'
+                junit 'test-results/results.xml'
             }
         }
     }
 
     post {
-        failure {
-            echo 'Pipeline Failed!'
-        }
         success {
-            echo 'Pipeline Succeeded!'
+            echo "Pipeline Succeeded!"
+        }
+        failure {
+            echo "Pipeline Failed!"
         }
     }
 }
